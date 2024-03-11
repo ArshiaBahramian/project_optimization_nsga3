@@ -32,12 +32,15 @@ class ConstructionSchedulingProblem(ElementwiseProblem):
         cp = CriticalPath(durations)
         duration = cp.calculate_critical_path()
         out["F"] = [duration, total_cost, -total_quality]
+        print(x)
 
 
 w = np.random.rand(20)
 c = [np.random.rand(3) for _ in range(20)]
 q = [np.random.rand(3) for _ in range(20)]
-
+print(w)
+print(c)
+print(q)
 problem = ConstructionSchedulingProblem(w, c, q)
 
 ref_dirs = get_reference_directions("das-dennis", 3, n_partitions=12)
@@ -49,7 +52,7 @@ algorithm = NSGA3(pop_size=500,
                   eliminate_duplicates=True,
                   ref_dirs=ref_dirs
                   )
-termination = get_termination("n_gen", 10000)
+termination = get_termination("n_gen", 1)
 # termination = DefaultMultiObjectiveTermination(
 #     xtol=1e-8,
 #     cvtol=1e-6,
@@ -63,10 +66,12 @@ res = minimize(problem, algorithm, termination, seed=1, save_history=True, verbo
 X = res.X
 F = res.F
 
-xl, xu = problem.bounds()
-plt.figure(figsize=(7, 5))
-plt.scatter(X[:, 0], X[:, 1], s=30, facecolors='none', edgecolors='r')
-plt.xlim(xl[0], xu[0])
-plt.ylim(xl[1], xu[1])
-plt.title("Design Space")
-plt.show()
+
+
+# xl, xu = problem.bounds()
+# plt.figure(figsize=(7, 5))
+# plt.scatter(X[:, 0], X[:, 1], s=30, facecolors='none', edgecolors='r')
+# plt.xlim(xl[0], xu[0])
+# plt.ylim(xl[1], xu[1])
+# plt.title("Design Space")
+# plt.show()
