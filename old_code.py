@@ -33,14 +33,13 @@ class ConstructionSchedulingProblem(ElementwiseProblem):
         duration = cp.calculate_critical_path()
         out["F"] = [duration, total_cost, -total_quality]
         print(x)
+        print(len(x))
 
 
 w = np.random.rand(20)
 c = [np.random.rand(3) for _ in range(20)]
 q = [np.random.rand(3) for _ in range(20)]
-print(w)
-print(c)
-print(q)
+
 problem = ConstructionSchedulingProblem(w, c, q)
 
 ref_dirs = get_reference_directions("das-dennis", 3, n_partitions=12)

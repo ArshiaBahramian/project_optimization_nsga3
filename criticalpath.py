@@ -51,31 +51,29 @@ class CriticalPath:
 
         return critical_path_duration
 
-# activities = {
-#     'start': 0,
-#     '1': 1,
-#     '2': 1,
-#     '3': 1,
-#     '4': 1,
-#     '5': 1,
-#     '6': 1,
-#     '7': 1,
-#     '8': 1,
-#     '9': 2,
-#     '10': 1,
-#     '11': 2,
-#     '12': 2,
-#     '13': 2,
-#     '14': 2,
-#     '15': 3,
-#     '16': 3,
-#     '17': 3,
-#     '18': 3,
-#     '19': 1,
-#     '20': 1,
-#     'end': 0
-# }
-# cp = CriticaLPath(activities)
-# critical_path, total_duration = cp.calculate_critical_path()
+activities = {
+    '1': 2,
+    '2': 10,
+    '3': 2,
+    '4': 3,
+    '5': 7,
+    '6': 3,
+    '7': 11,
+    '8': 3,
+    '9': 5,
+    '10': 11,
+    '11': 11,
+    '12': 2,
+    '13': 5,
+    '14': 10,
+    '15': 10,
+    '16': 3,
+    '17': 4,
+    '18': 9,
+    '19': 6,
+    '20': 4,
+}
+cp = CriticalPath(activities)
+total_duration = cp.calculate_critical_path()
 # print(critical_path)
-# print(total_duration)
+print(total_duration)
