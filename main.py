@@ -10,10 +10,13 @@ from pymoo.operators.mutation.pm import PM
 from pymoo.operators.sampling.rnd import BinaryRandomSampling, IntegerRandomSampling
 from criticalpath import CriticalPath
 from dur_cal import DurCal
+from cost_cal import CostCal
+from quality_cal import QualityCal
 from pymoo.termination import get_termination
 from pymoo.termination.default import DefaultMultiObjectiveTermination
 import matplotlib.pyplot as plt
 from pymoo.operators.repair.rounding import RoundingRepair
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class ConstructionSchedulingProblem(ElementwiseProblem):
@@ -25,22 +28,29 @@ class ConstructionSchedulingProblem(ElementwiseProblem):
     def _evaluate(self, x, out, *args, **kwargs):
         x_bin = x.reshape(20, 5)
         activities = {}
+        e_lq = []
+        total_cost = 0
+        total_quality = 0
+
         for i in range(20):
-            Z = DurCal(x_bin[i, 3],x_bin[i, 4],i)
-            activities["{}".format(i+1)] = Z.computee()
+            zd = DurCal(x_bin[i, 3],x_bin[i, 4],i)
+            activities["{}".format(i+1)] , Ec = zd.computee()
+            e_lq.append(Ec)
         cp = CriticalPath(activities)
         duration = cp.calculate_critical_path()
-        print(duration)
-        print(activities)
 
 
-        # total_cost = np.sum([self.c[j][m] * x_bin[j, m] for j in range(self.n_activities) for m in range(3)])
-        # total_quality = np.sum(
-        #     [self.w[j] * self.q[j][m] * x_bin[j, m] for j in range(self.n_activities) for m in range(3)])
-        # durations = {str(i + 1): np.dot(x_bin[i], [1, 2, 3]) for i in range(self.n_activities)}
-        # cp = CriticalPath(durations)
-        # duration = cp.calculate_critical_path()
-        # out["F"] = [duration, total_cost, -total_quality]
+        for i in range(20):
+            zc = CostCal(x_bin[i, 0],x_bin[i, 1],x_bin[i, 2],activities,i)
+            cost = zc.computee()
+            total_cost = total_cost + cost
+
+        for i in range(20):
+            zq = QualityCal(x_bin[i, 0],x_bin[i, 1],x_bin[i, 2],activities,i,e_lq)
+            quality = zq.computee()
+            total_quality = total_quality + quality
+
+        out["F"] = [duration, total_cost, -total_quality]
 
 
 
@@ -56,6 +66,7 @@ algorithm = NSGA3(pop_size=500,
                   ref_dirs=ref_dirs
                   )
 termination = get_termination("n_gen", 1)
+
 # termination = DefaultMultiObjectiveTermination(
 #     xtol=1e-8,
 #     cvtol=1e-6,
@@ -69,6 +80,9 @@ res = minimize(problem, algorithm, termination, seed=1, save_history=True, verbo
 X = res.X
 F = res.F
 
+# print(X)
+# print(F)
+
 # xl, xu = problem.bounds()
 # plt.figure(figsize=(7, 5))
 # plt.scatter(X[:, 0], X[:, 1], s=30, facecolors='none', edgecolors='r')
@@ -76,3 +90,20 @@ F = res.F
 # plt.ylim(xl[1], xu[1])
 # plt.title("Design Space")
 # plt.show()
+
+
+# ایجاد یک نمودار سه بعدی
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+
+# نام‌گذاری محورها
+ax.set_xlabel('Time')
+ax.set_ylabel('Cost')
+ax.set_zlabel('Quality')
+
+# رسم نقاط بر روی نمودار با استفاده از داده‌های موجود در F
+# F[:, 0]، F[:, 1]، و F[:, 2] به ترتیب نشان‌دهنده توابع هدف اول، دوم و سوم هستند.
+ax.scatter(F[:, 0], F[:, 1], F[:, 2], c='b', marker='o')
+
+# نمایش نمودار
+plt.show()

@@ -37,7 +37,7 @@ class DurCal:
             raise ValueError("مقدار مورد نظر برای E پیدا نشد.")
 
         D = v[self.i+1]/((self.h/8)*E)
-        return D
+        return D , E
 
 # NB = DurCal(5,9,2)
 # ZX = print(NB.computee())
