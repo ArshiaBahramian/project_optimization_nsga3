@@ -65,7 +65,7 @@ algorithm = NSGA3(pop_size=500,
                   eliminate_duplicates=True,
                   ref_dirs=ref_dirs
                   )
-termination = get_termination("n_gen", 1)
+termination = get_termination("n_gen", 5)
 
 # termination = DefaultMultiObjectiveTermination(
 #     xtol=1e-8,
@@ -94,16 +94,61 @@ F = res.F
 
 # ایجاد یک نمودار سه بعدی
 fig = plt.figure(figsize=(10, 7))
+fig1 = plt.figure(figsize=(10, 7))
+fig2 = plt.figure(figsize=(10, 7))
+fig3 = plt.figure(figsize=(10, 7))
+
 ax = fig.add_subplot(111, projection='3d')
+bx = fig1.add_subplot(111)
+cx = fig2.add_subplot(111)
+dx = fig3.add_subplot(111)
+
 
 # نام‌گذاری محورها
-ax.set_xlabel('Time')
-ax.set_ylabel('Cost')
-ax.set_zlabel('Quality')
+ax.set_xlabel('Time(days)', fontsize=12, fontname='Arial')
+ax.set_ylabel('Cost($)', fontsize=12, fontname='Arial')
+ax.set_zlabel('Quality', fontsize=12, fontname='Arial')
+
+# نام‌گذاری محورها نمودار زمان و هزینه
+bx.set_xlabel('Time(days)', fontsize=15, fontname='Arial')
+bx.set_ylabel('Cost($)', fontsize=15, fontname='Arial')
+
+# نام‌گذاری محورها نمودار زمان و کیفیت
+cx.set_xlabel('Time(days)', fontsize=15, fontname='Arial')
+cx.set_ylabel('Quality', fontsize=15, fontname='Arial')
+
+
+# نام‌گذاری محورها نمودار هزینه و کیفیت
+dx.set_xlabel('Quality', fontsize=15, fontname='Arial')
+dx.set_ylabel('Cost($)', fontsize=15, fontname='Arial')
+
+
 
 # رسم نقاط بر روی نمودار با استفاده از داده‌های موجود در F
 # F[:, 0]، F[:, 1]، و F[:, 2] به ترتیب نشان‌دهنده توابع هدف اول، دوم و سوم هستند.
 ax.scatter(F[:, 0], F[:, 1], F[:, 2], c='b', marker='o')
+bx.scatter(F[:, 0], F[:, 1], c='b', marker='o')
+cx.scatter(F[:, 0], F[:, 2]*-1, c='b', marker='o')
+dx.scatter(F[:, 2]*-1, F[:, 1], c='b', marker='o')
+
+# نمایش نمودار مقادیر
+# for i in range(len(F)):
+#     bx.text(F[i, 0], F[i, 1], f'({int(F[i, 0])}, {int(F[i, 1])})')
+#     cx.text(F[i, 0], F[i, 2], f'({int(F[i, 0])}, {F[i, 2]:.3f})')
+#     dx.text(F[i, 2], F[i, 1], f'({F[i, 2]:.3f}, {int(F[i, 1])})')
 
 # نمایش نمودار
 plt.show()
+
+import pandas as pd
+
+# تبدیل مقادیر F و X به DataFrame
+df_F = pd.DataFrame(F, columns=['Duration', 'Total Cost', 'Quality'])
+df_X = pd.DataFrame(X, columns=[f'Activity_{i+1}' for i in range(100)])
+
+# ذخیره DataFrame ها به فایل Excel
+with pd.ExcelWriter('output.xlsx') as writer:
+    df_F.to_excel(writer, sheet_name='Objectives', index=False)
+    df_X.to_excel(writer, sheet_name='Variables', index=False)
+
+
